@@ -1,0 +1,8 @@
+sshd:
+ssh_port: "9122"
+
+#mathc address is for adding ip to access ssh connection in sshd_config file
+match_address: "5.196.171.67"
+
+#secretes
+sudo_pass: "{{ vault_sudo_pass }}"

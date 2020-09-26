@@ -1,0 +1,8 @@
+---
+- name: Upload ssh pub key for new users and configuration sshd
+  hosts: all
+  vars_files: 
+    - vault.yml
+    - group_vars/all
+  roles:
+    - sshpubkey
