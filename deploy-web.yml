@@ -1,0 +1,8 @@
+---
+- name: Install python3 uwsgi flask
+  hosts: all
+  vars_files: 
+    - vault.yml
+    - group_vars/all
+  roles:
+    - python3

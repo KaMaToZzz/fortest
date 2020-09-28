@@ -10,7 +10,7 @@
   template: src=sshd_config.j2 dest=/etc/ssh/sshd_config owner=root group=root mode=0644
   tags: sshconfig
 
-- name: addin ip to ufw
+- name: addin allow port ssh to ufw
   become: yes
   ufw:
     rule: allow
@@ -20,7 +20,18 @@
   with_items:
     - 5.196.171.67
     - 185.117.119.39
-  tags: sshconfig
+    
+- name: addin allow port uwsgi to ufw
+  become: yes
+  community.general.ufw:
+    rule: allow
+    port: '5555'
+    proto: tcp
+    src: '{{ item }}'
+    comment: open port for app
+  with_items:
+    - 5.196.171.67
+    - 185.117.119.39
 
 - name: Restart service ssh
   become: yes

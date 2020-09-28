@@ -6,3 +6,14 @@ match_address: "5.196.171.67"
 
 #secretes
 sudo_pass: "{{ vault_sudo_pass }}"
+
+#for django
+project_homedir: "/opt/apps/app_test"
+env: "/opt/apps/app_test/env"
+requirements: "requirements.txt"
+
+#for app
+FLASK_LOG_TO_DIR: ""
+FLASK_LOG_LEVEL: ""
+FLASK_CALCULATE_WAIT_TIME: ""
+FLASK_BID_CREATION_WAIT_TIME: ""
