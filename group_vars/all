@@ -24,3 +24,4 @@ os_environment:
     value: '2'
   - key: 'FLASK_BID_CREATION_WAIT_TIME'
     value: '2'
+    
