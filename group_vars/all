@@ -1,7 +1,5 @@
-sshd:
+# sshd secure
 ssh_port: "9122"
-
-#mathc address is for adding ip to access ssh connection in sshd_config file
 match_address: "5.196.171.67"
 
 #secretes
@@ -10,18 +8,10 @@ sudo_pass: "{{ vault_sudo_pass }}"
 #for project
 project_dir: "/opt/apps/app_test"
 env: "{{ project_dir }}/env"
+uwsgi_log: "/var/log/uwsgi"
 requirements: "requirements.txt"
 app_file: "{{ project_dir }}/app.py"
-#start_uswgi: "--socket :5555 --protocol=http --master --wsgi-file {{ project_dir }}/app.py --callable app --chdir {{ project_dir }}"
 
-#for env linux
-os_environment:
-  - key: 'FLASK_LOG_TO_DIR' 
-    value: '{{ project_dir }}/logs'
-  - key: 'FLASK_LOG_LEVEL' 
-    value: 'DEBUG'
-  - key: 'FLASK_CALCULATE_WAIT_TIME'
-    value: '2'
-  - key: 'FLASK_BID_CREATION_WAIT_TIME'
-    value: '2'
-    
+#os system user and group
+sysuser: "ubuntu"
+sysgroup: "ubuntu"

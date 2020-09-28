@@ -3,8 +3,8 @@ Description=uWSGI instance to serve app_test
 After=network.target
 
 [Service]
-User=ubuntu
-Group=ubuntu
+User={{ sysuser }}
+Group={{ sysgroup }}
 Restart=always
 KillSignal=SIGQUIT
 Type=notify
@@ -15,8 +15,8 @@ ExecStart={{ env }}/bin/uwsgi --ini {{ project_dir }}/apps.ini
 
 [Socket]
 ListenStream={{ project_dir }}/app.socket
-SocketUser=ubuntu
-SocketGroup=ubuntu
+SocketUser={{ sysuser }}
+SocketGroup={{ sysgroup }}
 SocketMode=0660
 
 [Install]

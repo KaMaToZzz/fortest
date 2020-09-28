@@ -1,7 +1,7 @@
 ---
-# tasks file for deploy ssh pub key
+# tasks file for deploy nginx python uwsgi flask, files of project and web configs
 
-- name: Installing python 3.x
+- name: Installing python and nginx
   become: yes
   apt:
     pkg:
@@ -27,37 +27,24 @@
    - '{{ env }}'
    - '{{ project_dir }}'
    - '{{ project_dir }}/logs'
-   - '/var/log/uwsgi'
+   - '{{ uwsgi_log }}'
 
 - name: copy file project
   become: yes
-  copy: src={{ item }} dest={{ project_dir }} owner=ubuntu group=ubuntu mode=0644
+  copy: src={{ item }} dest={{ project_dir }} owner={{ sysuser }} group={{ sysgroup }} mode=0644
   with_items:
    - 'app.py'
    - 'config.py'
    - 'requirements.txt'
 
-- name: copy apps ini param
+- name: copy apps.ini param
   become: yes
   template: src=apps.ini.j2 dest={{ project_dir }}/apps.ini owner=ubuntu group=ubuntu mode=0644
-  tags: test2
 
 - name: touch log file in /var/log/uwsgi
   become: yes
-  file: path=/var/log/uwsgi/apps.log state=touch owner=ubuntu group=ubuntu mode=0644
-  tags: test3
+  file: path=/var/log/uwsgi/apps.log state=touch owner={{ sysuser }} group={{ sysgroup }} mode=0644
 
-- name: touch file .pam_environment in ~/
-  file: path=~/.pam_environment state=touch 
-
-- name: populate ~/.pam_environment
-  lineinfile:
-    path: ~/.pam_environment
-    state: present
-    regexp: '^{{ item.key }}='
-    line: '{{ item.key }}={{ item.value}}'
-  with_items: '{{ os_environment }}'
-  
 - name: create virtualenv
   become: yes
   pip: requirements={{ project_dir }}/{{ requirements }} virtualenv={{ env }} virtualenv_command='python3 -m venv'
@@ -70,16 +57,14 @@
     virtualenv: "{{ env }}"
     virtualenv_command: 'source {{ project_dir }}/bin/activate'
 
-- name: copy apps ini param
+- name: copy service file in system
   become: yes
   template: src=app.service.j2 dest=/etc/systemd/system/app.service owner=root group=root mode=644
-  tags: test2
 
-- name: Make sure a service is running
+- name: service is running and enabled
   become: yes
   systemd:
     state: started
     name: app
     enabled: yes
-  tags: test2
     
