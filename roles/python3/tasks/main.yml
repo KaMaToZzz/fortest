@@ -9,22 +9,25 @@
       - python3-venv
       - python3-pip
       - nginx
+      - libpcre3 
+      - libpcre3-dev
     state: latest
     update_cache: true
 
 - name: creat dir
   become: yes
   file:
-    path: "{{ item }}"
+    path: '{{ item }}'
     recurse: yes
-    owner: "ubuntu"
+    owner: 'ubuntu'
     mode: 0755
     state: directory
   loop:
-   - /opt/apps
-   - {{ env }}
-   - {{ project_dir }}
-   - {{ project_dir }}/logs
+   - '/opt/apps'
+   - '{{ env }}'
+   - '{{ project_dir }}'
+   - '{{ project_dir }}/logs'
+   - '/var/log/uwsgi'
 
 - name: copy file project
   become: yes
@@ -33,33 +36,50 @@
    - 'app.py'
    - 'config.py'
    - 'requirements.txt'
-   - 'apps.ini'
+
+- name: copy apps ini param
+  become: yes
+  template: src=apps.ini.j2 dest={{ project_dir }}/apps.ini owner=ubuntu group=ubuntu mode=0644
+  tags: test2
+
+- name: touch log file in /var/log/uwsgi
+  become: yes
+  file: path=/var/log/uwsgi/apps.log state=touch owner=ubuntu group=ubuntu mode=0644
+  tags: test3
+
+- name: touch file .pam_environment in ~/
+  file: path=~/.pam_environment state=touch 
+
+- name: populate ~/.pam_environment
+  lineinfile:
+    path: ~/.pam_environment
+    state: present
+    regexp: '^{{ item.key }}='
+    line: '{{ item.key }}={{ item.value}}'
+  with_items: '{{ os_environment }}'
   
 - name: create virtualenv
-  pip: virtualenv={{ env }} virtualenv_site_packages=yes {% if requirements %}requirements={{ project_homedir }}/{{ requirements }}{% endif %}
-- name: Install wheel
-  pip:
-    name: wheel
-    virtualenv: "{{ env }}"
-    virtualenv_command: "/usr/bin/python3 -m venv {{ env }}"
+  become: yes
+  pip: requirements={{ project_dir }}/{{ requirements }} virtualenv={{ env }} virtualenv_command='python3 -m venv'
 
 - name: install a django
   pip:
-    name: ['uwsgi', 'flask']
+    name: 
+      - uwsgi
+      - flask
     virtualenv: "{{ env }}"
-    virtualenv_command: "source /opt/apps/app_test/bin/activate"
+    virtualenv_command: 'source {{ project_dir }}/bin/activate'
 
-# - name: activated source of project
-#   become: yes
-#   shell: "source /opt/apps/app_test/bin/activate"
-#   tags: activeenv
+- name: copy apps ini param
+  become: yes
+  template: src=app.service.j2 dest=/etc/systemd/system/app.service owner=root group=root mode=644
+  tags: test2
 
-# - name: Install wheel
-#   pip:
-#     name: {{ item }}
-#     virtualenv: "/opt/apps/app_test"
-#     virtualenv_command: ""
-#   with_items:
-#    - 'uwsgi'
-#    - 'flask'
+- name: Make sure a service is running
+  become: yes
+  systemd:
+    state: started
+    name: app
+    enabled: yes
+  tags: test2
     
