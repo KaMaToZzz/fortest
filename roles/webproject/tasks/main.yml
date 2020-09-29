@@ -40,6 +40,7 @@
 - name: copy apps.ini param
   become: yes
   template: src=apps.ini.j2 dest={{ project_dir }}/apps.ini owner=ubuntu group=ubuntu mode=0644
+  tags: test
 
 - name: touch log file in /var/log/uwsgi
   become: yes
@@ -59,7 +60,7 @@
 
 - name: copy service file in system
   become: yes
-  template: src=app.service.j2 dest=/etc/systemd/system/app.service owner=root group=root mode=644
+  template: src=app.service.j2 dest=/etc/systemd/system/app.service owner=root group=root mode=664
 
 - name: service is running and enabled
   become: yes
@@ -67,4 +68,27 @@
     state: started
     name: app
     enabled: yes
+
+- name: Disable the default site
+  become: yes
+  file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+
+- name: copy app_nginx.conf
+  become: yes
+  template: src=app_nginx.conf.j2 dest=/etc/nginx/sites-enabled/app_nginx.conf owner=root group=root mode=0655
+  
+- name: nginx is running and enabled
+  become: yes
+  systemd:
+    state: started
+    name: nginx
+    enabled: yes
     
+- name: nginx restarted
+  become: yes
+  systemd:
+    state: restarted
+    name: nginx
+  tags: test

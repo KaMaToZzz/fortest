@@ -17,18 +17,19 @@
     port: '9122'
     proto: tcp
     src: '{{ item }}'
+    comment: open port for ssh and src
   with_items:
     - 5.196.171.67
     - 185.117.119.39
     
-- name: addin allow port uwsgi to ufw
+- name: addin allow port nginx to ufw
   become: yes
-  community.general.ufw:
+  ufw:
     rule: allow
-    port: '5555'
+    port: '80'
     proto: tcp
     src: '{{ item }}'
-    comment: open port for app
+    comment: open port for app and src
   with_items:
     - 5.196.171.67
     - 185.117.119.39

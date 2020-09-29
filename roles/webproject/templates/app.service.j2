@@ -3,8 +3,8 @@ Description=uWSGI instance to serve app_test
 After=network.target
 
 [Service]
-User={{ sysuser }}
-Group={{ sysgroup }}
+User=www-data
+Group=www-data
 Restart=always
 KillSignal=SIGQUIT
 Type=notify
@@ -12,12 +12,6 @@ StandardError=syslog
 WorkingDirectory={{ project_dir }}
 Environment="PATH={{ env }}/bin"
 ExecStart={{ env }}/bin/uwsgi --ini {{ project_dir }}/apps.ini
-
-[Socket]
-ListenStream={{ project_dir }}/app.socket
-SocketUser={{ sysuser }}
-SocketGroup={{ sysgroup }}
-SocketMode=0660
 
 [Install]
 WantedBy=multi-user.target
